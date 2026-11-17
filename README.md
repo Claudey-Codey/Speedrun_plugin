@@ -28,12 +28,28 @@ Last one standing wins.
    The border starts at 100×100 and shrinks to 5×5 over 15 minutes. Dying, or leaving, loses the fight.
 7. After 15 seconds everyone goes back to the lobby, the game worlds are deleted, and you can play again.
 
+## Solo practice
+
+Alone on the server? Run `/dueley solo` in the lobby to practice. It only works when you're the only player
+online; run it again to turn it off. The seed menu opens and every seed option works. You get your own
+world (and nether), the usual countdown, gather phase and arena fight, just without an opponent.
+
+The practice ends when:
+- you **die** in the arena (*PRACTICE OVER*, showing how long you lasted),
+- you're still alive **60 seconds after the border reaches its final size** (*PRACTICE COMPLETE*),
+- you leave during the fight, or an admin runs `/dueley stop`.
+
+Then everyone goes back to the lobby as usual. If a second player joins while you're still in the lobby,
+solo practice turns off and the normal 1v1 seed choice starts. Anyone joining during a solo game spectates.
+Solo practice always turns off when the game returns to the lobby.
+
 ## Commands
 
 | Command | Who | What |
 |---|---|---|
 | `/dueley toggle_timer` | everyone | Show or hide the timer |
 | `/dueley menu` | everyone | Open the seed selection screen |
+| `/dueley solo` | everyone | Turn solo practice on or off (only when you're alone in the lobby) |
 | `/dueley info` | everyone | Show the state, seed and time left |
 | `/dueley stop` | op (`dueley.admin`) | Abort the game and return to the lobby |
 | `/dueley time <seconds>` | op (`dueley.admin`) | Set the time left in the gather phase (for testing) |

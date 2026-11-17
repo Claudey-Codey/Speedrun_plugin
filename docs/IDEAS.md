@@ -1,6 +1,7 @@
 # Dueley ideas
 
 ## Next up
+- Fabric mod version (singleplayer / Essential), same as the plugin, in fabric/ (in progress)
 - Full 2-player test on 26.2 (blocked: test bots only support up to 26.1)
 
 ## Ideas
@@ -11,3 +12,4 @@
 - Timer toggle moved to /dueley toggle_timer
 - Renamed from "Trogger" (a typo of /trigger) → Hour Duel → Dueley: /dueley (alias /dy)
 - Debug command: /dueley debug timer_forward <number> <seconds|minutes> (ops)
+- Solo practice mode: /dueley solo

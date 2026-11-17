@@ -46,12 +46,20 @@ import java.util.concurrent.ThreadLocalRandom;
 /** Runs the whole Dueley match: lobby → seed choice → world generation → countdown → gather → fight → lobby. */
 public final class GameManager {
     public static final int PLAYERS = 2;
+    /** Solo practice: how long the player must survive at the final border size to complete it. */
+    public static final int SOLO_SURVIVE_SECONDS = 60;
 
     private final DueleyPlugin plugin;
     private final WorldService worlds;
     private final NamespacedKey menuItemKey;
 
     private GameState state = GameState.LOBBY;
+    /**
+     * Solo practice mode: one participant instead of {@link #PLAYERS}. Only toggled in LOBBY (by /dueley solo, or
+     * turned off when a second player joins) and always reset to false when the game returns to the lobby, so it is
+     * constant for the whole game.
+     */
+    private boolean solo;
     private final List<UUID> joinOrder = new ArrayList<>();
     private final List<UUID> participants = new ArrayList<>();
     private final Map<UUID, World> overworlds = new HashMap<>();
@@ -174,15 +182,22 @@ public final class GameManager {
     private void tickLobby() {
         freeze(true);
         int online = Bukkit.getOnlinePlayers().size();
-        if (online < PLAYERS) {
+        if (solo && online != 1) {
+            // safety net: onJoin/onQuit normally turn solo off already
+            soloOff(online > 1 ? "<yellow>Someone joined — solo practice is off." : null);
+        }
+        if (online < neededPlayers()) {
             menuShown = false;
-            actionBarAll("<yellow>⌛ Waiting for players <white>(" + online + "/" + PLAYERS + ")</white> <dark_gray>|</dark_gray> <gray>The game is frozen");
+            String hint = online == 1 ? "/dueley solo to practice alone" : "The game is frozen";
+            actionBarAll("<yellow>⌛ Waiting for players <white>(" + online + "/" + PLAYERS + ")</white> <dark_gray>|</dark_gray> <gray>" + hint);
             return;
         }
         if (customSeedTyper != null) {
             Player typer = Bukkit.getPlayer(customSeedTyper);
             String name = typer == null ? "Someone" : typer.getName();
             actionBarAll("<light_purple>✎ " + name + " is typing a custom seed...");
+        } else if (solo) {
+            actionBarAll("<green>✔ Solo practice! <gray>Choose a seed — right-click the <aqua>Nether Star");
         } else {
             actionBarAll("<green>✔ " + online + "/" + PLAYERS + " players! <gray>Choose a seed — right-click the <aqua>Nether Star");
         }
@@ -227,7 +242,7 @@ public final class GameManager {
             }
             if (resumeCountdown > 0) {
                 for (Player p : participantsOnline()) {
-                    Msg.title(p, "<yellow>Resuming in " + resumeCountdown, "<gray>Both players are back!", 0, 25, 5);
+                    Msg.title(p, "<yellow>Resuming in " + resumeCountdown, solo ? "<gray>You're back!" : "<gray>Both players are back!", 0, 25, 5);
                     Msg.sound(p, Sound.BLOCK_NOTE_BLOCK_HAT, 1f, 1f);
                 }
                 resumeCountdown--;
@@ -285,6 +300,10 @@ public final class GameManager {
                         + size + "×" + size + "</b></white> <dark_gray>|</dark_gray> " + tail));
             }
         }
+        // solo practice has no opponent: it is complete once the player survives a while at the final border size
+        if (solo && fightSeconds >= shrinkMinutes * 60 + SOLO_SURVIVE_SECONDS) {
+            endPractice(PracticeEnd.SURVIVED);
+        }
     }
 
     // ═════════════════════════ seed choice ═════════════════════════
@@ -294,12 +313,14 @@ public final class GameManager {
             Msg.send(p, "<red>A game is already running.");
             return;
         }
-        if (Bukkit.getOnlinePlayers().size() < PLAYERS) {
-            Msg.send(p, "<yellow>Waiting for a second player before you can choose a seed.");
+        if (Bukkit.getOnlinePlayers().size() < neededPlayers()) {
+            Msg.send(p, "<yellow>Waiting for a second player before you can choose a seed. " + SOLO_HINT);
             return;
         }
         List<Player> lobby = lobbyPlayersInOrder();
-        String line = lobby.size() >= 2
+        String line = solo
+                ? "<white>" + p.getName() + " <gray>(solo practice)"
+                : lobby.size() >= 2
                 ? "<white>" + lobby.get(0).getName() + " <red>vs</red> " + lobby.get(1).getName()
                 : "<white>" + lobby.size();
         p.openInventory(SeedMenu.main(line, gatherMinutes).getInventory());
@@ -317,8 +338,8 @@ public final class GameManager {
             Msg.send(p, "<red>A game is already running.");
             return false;
         }
-        if (Bukkit.getOnlinePlayers().size() < PLAYERS) {
-            Msg.send(p, "<yellow>Waiting for a second player.");
+        if (Bukkit.getOnlinePlayers().size() < neededPlayers()) {
+            Msg.send(p, "<yellow>Waiting for a second player. " + SOLO_HINT);
             return false;
         }
         if (customSeedTyper != null && !customSeedTyper.equals(p.getUniqueId())) {
@@ -369,12 +390,59 @@ public final class GameManager {
             openMainMenu(p);
             return;
         }
-        if (state != GameState.LOBBY || Bukkit.getOnlinePlayers().size() < PLAYERS) {
+        if (state != GameState.LOBBY || Bukkit.getOnlinePlayers().size() < neededPlayers()) {
             Msg.send(p, "<red>You can't start right now.");
             return;
         }
         loadSettings();
         beginGame(p, SeedMode.CUSTOM, parseSeed(input), null);
+    }
+
+    private static final String SOLO_HINT = "<gray>Alone? Practice with <white>/dueley solo</white>.";
+
+    /** Participants needed to start: 1 in solo practice, otherwise {@link #PLAYERS}. */
+    private int neededPlayers() {
+        return solo ? 1 : PLAYERS;
+    }
+
+    public boolean isSolo() {
+        return solo;
+    }
+
+    /** /dueley solo: turn solo practice on (and open the seed menu) or off. Only in LOBBY with exactly 1 player online. */
+    public void toggleSolo(Player p) {
+        if (state != GameState.LOBBY) {
+            Msg.send(p, "<red>A game is already running.");
+            return;
+        }
+        if (solo) {
+            soloOff("<gray>Solo practice is off.");
+            return;
+        }
+        if (Bukkit.getOnlinePlayers().size() != 1) {
+            Msg.send(p, "<red>Solo practice is only for when you're alone in the lobby.");
+            return;
+        }
+        solo = true;
+        menuShown = true; // opened right here, tickLobby must not open it again
+        Msg.send(p, "<green>Solo practice is on! <gray>Choose a seed. <dark_gray>(/dueley solo again to turn it off)");
+        Msg.sound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f);
+        openMainMenu(p);
+    }
+
+    /** Turn solo practice off in the lobby: close seed menus, cancel a custom seed being typed, tell everyone. */
+    private void soloOff(String message) {
+        solo = false;
+        menuShown = false; // with 2+ players online, tickLobby re-opens the menu for everyone
+        customSeedTyper = null;
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            if (other.getOpenInventory().getTopInventory().getHolder() instanceof SeedMenu) {
+                other.closeInventory();
+            }
+        }
+        if (message != null) {
+            Msg.broadcast(message);
+        }
     }
 
     /** Same rules as the vanilla "Seed for the World Generator" box. */
@@ -393,11 +461,12 @@ public final class GameManager {
 
     private void beginGame(Player chooser, SeedMode mode, long chosenSeed, GoodStructure structure) {
         List<Player> lobby = lobbyPlayersInOrder();
-        if (lobby.size() < PLAYERS) {
+        int needed = neededPlayers();
+        if (lobby.size() < needed) {
             return;
         }
         participants.clear();
-        for (int i = 0; i < PLAYERS; i++) {
+        for (int i = 0; i < needed; i++) {
             participants.add(lobby.get(i).getUniqueId());
         }
         state = GameState.GENERATING;
@@ -420,7 +489,11 @@ public final class GameManager {
         }
         Msg.broadcast("<white>" + chooser.getName() + "</white> chose <aqua>" + mode.displayName()
                 + (structure != null ? " <gray>(" + structure.displayName() + ")" : "") + "<gray>!");
-        Msg.broadcast("<gray>Match: <white>" + lobby.get(0).getName() + " <red>vs</red> " + lobby.get(1).getName());
+        if (solo) {
+            Msg.broadcast("<gray>Solo practice: <white>" + lobby.get(0).getName());
+        } else {
+            Msg.broadcast("<gray>Match: <white>" + lobby.get(0).getName() + " <red>vs</red> " + lobby.get(1).getName());
+        }
 
         generationSteps.clear();
         if (mode == SeedMode.GOOD) {
@@ -456,7 +529,7 @@ public final class GameManager {
         }
     }
 
-    /** Called after the first overworld exists: queue nether, player 2 worlds and the arena. */
+    /** Called after the first overworld exists: queue nether, player 2 worlds (not in solo practice) and the arena. */
     private void createRemainingWorlds() {
         if (netherEnabled) {
             generationSteps.add(() -> {
@@ -464,15 +537,17 @@ public final class GameManager {
                 registerNether(0, worlds.createSurvivalWorld(worldPrefix + "p1_nether", seed, World.Environment.NETHER, difficulty));
             });
         }
-        generationSteps.add(() -> {
-            generationStatus = "Generating " + playerName(1) + "'s world...";
-            registerOverworld(1, worlds.createSurvivalWorld(worldPrefix + "p2", seed, World.Environment.NORMAL, difficulty));
-        });
-        if (netherEnabled) {
+        if (!solo) {
             generationSteps.add(() -> {
-                generationStatus = "Generating " + playerName(1) + "'s nether...";
-                registerNether(1, worlds.createSurvivalWorld(worldPrefix + "p2_nether", seed, World.Environment.NETHER, difficulty));
+                generationStatus = "Generating " + playerName(1) + "'s world...";
+                registerOverworld(1, worlds.createSurvivalWorld(worldPrefix + "p2", seed, World.Environment.NORMAL, difficulty));
             });
+            if (netherEnabled) {
+                generationSteps.add(() -> {
+                    generationStatus = "Generating " + playerName(1) + "'s nether...";
+                    registerNether(1, worlds.createSurvivalWorld(worldPrefix + "p2_nether", seed, World.Environment.NETHER, difficulty));
+                });
+            }
         }
         generationSteps.add(() -> {
             generationStatus = "Building the arena...";
@@ -724,20 +799,33 @@ public final class GameManager {
                 + "</white> over <white>" + shrinkMinutes + " minutes</white>.");
 
         List<Player> online = participantsOnline();
-        if (online.size() < PLAYERS) {
+        if (solo) {
+            if (online.isEmpty()) {
+                endPractice(PracticeEnd.LEFT);
+            }
+        } else if (online.size() < PLAYERS) {
             endGame(online.isEmpty() ? null : online.get(0), "their opponent is offline");
         }
     }
 
-    private void endGame(Player winner, String reason) {
+    /** Switch to ENDED and stop the border. Returns false when the game already ended (or there is none). */
+    private boolean enterEnded() {
         if (state == GameState.ENDED || state == GameState.LOBBY) {
-            return;
+            return false;
         }
         state = GameState.ENDED;
         endCountdown = returnSeconds;
         if (arena != null) {
             WorldBorder wb = arena.getWorldBorder();
             wb.setSize(wb.getSize()); // stop shrinking
+        }
+        return true;
+    }
+
+    /** End of a 1v1 fight. */
+    private void endGame(Player winner, String reason) {
+        if (!enterEnded()) {
+            return;
         }
         String winnerName = winner == null ? "Nobody" : winner.getName();
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -765,9 +853,68 @@ public final class GameManager {
         }
     }
 
+    /** How a solo practice fight ended. */
+    private enum PracticeEnd { DIED, SURVIVED, LEFT }
+
+    /** End of a solo practice fight (there is no winner). */
+    private void endPractice(PracticeEnd how) {
+        if (!enterEnded()) {
+            return;
+        }
+        String name = playerName(0);
+        String lasted = Msg.clock(fightSeconds);
+        String title;
+        String ownSubtitle;
+        String othersSubtitle;
+        String broadcast;
+        switch (how) {
+            case SURVIVED -> {
+                title = "<gold><b>PRACTICE COMPLETE";
+                ownSubtitle = "<yellow>You survived the arena!";
+                othersSubtitle = "<white>" + name + "</white> <gray>survived the arena!";
+                broadcast = "<gold><b>PRACTICE COMPLETE!</b> <white>" + name + "</white> <gray>survived the arena!";
+            }
+            case DIED -> {
+                title = "<red><b>PRACTICE OVER";
+                ownSubtitle = "<gray>You lasted <white>" + lasted + "</white> in the arena";
+                othersSubtitle = "<white>" + name + "</white> <gray>lasted <white>" + lasted + "</white> in the arena";
+                broadcast = "<red><b>PRACTICE OVER!</b> <white>" + name + "</white> <gray>lasted <white>" + lasted + "</white> in the arena.";
+            }
+            default -> {
+                title = "<red><b>PRACTICE OVER";
+                ownSubtitle = "<gray>You left the arena";
+                othersSubtitle = "<white>" + name + "</white> <gray>left the arena";
+                broadcast = "<red><b>PRACTICE OVER!</b> <white>" + name + "</white> <gray>left the game.";
+            }
+        }
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            boolean own = isParticipant(p);
+            Msg.title(p, title, own ? ownSubtitle : othersSubtitle, 5, 80, 20);
+            if (own) {
+                Msg.sound(p, how == PracticeEnd.SURVIVED ? Sound.UI_TOAST_CHALLENGE_COMPLETE : Sound.ENTITY_WITHER_DEATH,
+                        how == PracticeEnd.SURVIVED ? 1f : 0.5f, 1f);
+            }
+        }
+        Msg.broadcast(broadcast);
+        Msg.broadcast("<gray>Back to the lobby in " + returnSeconds + " seconds...");
+        if (how == PracticeEnd.SURVIVED) {
+            for (Player p : participantsOnline()) {
+                p.setInvulnerable(true);
+                for (int i = 0; i < 4; i++) {
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (p.isOnline() && state == GameState.ENDED) {
+                            launchFirework(p.getLocation());
+                        }
+                    }, i * 15L);
+                }
+            }
+        }
+    }
+
     private void resetToLobby() {
         cancelGeneration();
         state = GameState.LOBBY;
+        solo = false;
         freeze(true);
         menuShown = false;
         customSeedTyper = null;
@@ -854,7 +1001,13 @@ public final class GameManager {
         joinOrder.remove(p.getUniqueId());
         joinOrder.add(p.getUniqueId());
         switch (state) {
-            case LOBBY, GENERATING -> sendToLobby(p);
+            case LOBBY, GENERATING -> {
+                sendToLobby(p);
+                if (state == GameState.LOBBY && solo && Bukkit.getOnlinePlayers().size() > 1) {
+                    // a second player turns solo practice off; tickLobby then opens the menu for both (normal 1v1 flow)
+                    soloOff("<yellow>" + p.getName() + " joined — solo practice is off. <gray>Choose a seed for a 1v1!");
+                }
+            }
             case COUNTDOWN, GATHER -> {
                 if (isParticipant(p)) {
                     World own = overworlds.get(p.getUniqueId());
@@ -884,7 +1037,10 @@ public final class GameManager {
         Bukkit.getScheduler().runTask(plugin, () -> {
             switch (state) {
                 case LOBBY -> {
-                    if (Bukkit.getOnlinePlayers().size() < PLAYERS) {
+                    if (solo && Bukkit.getOnlinePlayers().isEmpty()) {
+                        solo = false; // the solo player left
+                    }
+                    if (Bukkit.getOnlinePlayers().size() < neededPlayers()) {
                         menuShown = false;
                         for (Player other : Bukkit.getOnlinePlayers()) {
                             if (other.getOpenInventory().getTopInventory().getHolder() instanceof SeedMenu) {
@@ -899,7 +1055,9 @@ public final class GameManager {
                     }
                 }
                 case FIGHT -> {
-                    if (isParticipant(p)) {
+                    if (isParticipant(p) && solo) {
+                        endPractice(PracticeEnd.LEFT);
+                    } else if (isParticipant(p)) {
                         List<Player> left = participantsOnline();
                         endGame(left.isEmpty() ? null : left.get(0), p.getName() + " left the game");
                     }
@@ -912,8 +1070,12 @@ public final class GameManager {
 
     public void onDeath(Player p) {
         if (state == GameState.FIGHT && isParticipant(p)) {
-            Player winner = participantsOnline().stream().filter(o -> !o.equals(p)).findFirst().orElse(null);
-            endGame(winner, p.getName() + " was defeated");
+            if (solo) {
+                endPractice(PracticeEnd.DIED);
+            } else {
+                Player winner = participantsOnline().stream().filter(o -> !o.equals(p)).findFirst().orElse(null);
+                endGame(winner, p.getName() + " was defeated");
+            }
             // skip the death screen: respawn straight into spectator mode to watch the winner
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (p.isOnline() && p.isDead()) {
@@ -1017,6 +1179,7 @@ public final class GameManager {
 
     public String describe() {
         StringBuilder sb = new StringBuilder("<gray>State: <white>" + state);
+        sb.append("\n<gray>Mode: <white>").append(solo ? "Solo practice" : "1v1");
         if (state != GameState.LOBBY) {
             sb.append("\n<gray>Seed: <white>").append(seed).append(" <dark_gray>(").append(seedMode == null ? "?" : seedMode.displayName()).append(")");
             sb.append("\n<gray>Players: <white>").append(String.join(" vs ", participants.stream()

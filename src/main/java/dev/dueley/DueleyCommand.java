@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/** /dueley menu | info | toggle_timer | stop | time <seconds> | debug timer_forward <number> <seconds|minutes> */
+/** /dueley menu | solo | info | toggle_timer | stop | time <seconds> | debug timer_forward <number> <seconds|minutes> */
 public final class DueleyCommand implements TabExecutor {
     private final GameManager game;
 
@@ -26,6 +26,13 @@ public final class DueleyCommand implements TabExecutor {
                 if (sender instanceof Player p) {
                     game.openMainMenu(p);
                 }
+            }
+            case "solo" -> {
+                if (!(sender instanceof Player p)) {
+                    sender.sendMessage("Players only.");
+                    return true;
+                }
+                game.toggleSolo(p);
             }
             case "info" -> sender.sendMessage(Msg.mm(Msg.PREFIX + game.describe()));
             case "toggle_timer" -> {
@@ -67,6 +74,7 @@ public final class DueleyCommand implements TabExecutor {
             default -> {
                 sender.sendMessage(Msg.mm(Msg.PREFIX + "<gold>Commands:"));
                 sender.sendMessage(Msg.mm("<yellow>/dueley menu <gray>- open the seed selection screen"));
+                sender.sendMessage(Msg.mm("<yellow>/dueley solo <gray>- practice alone"));
                 sender.sendMessage(Msg.mm("<yellow>/dueley info <gray>- show game info"));
                 sender.sendMessage(Msg.mm("<yellow>/dueley toggle_timer <gray>- show or hide the timer"));
                 if (sender.hasPermission("dueley.admin")) {
@@ -124,7 +132,7 @@ public final class DueleyCommand implements TabExecutor {
         boolean admin = sender.hasPermission("dueley.admin");
         List<String> options;
         if (args.length == 1) {
-            options = new ArrayList<>(List.of("menu", "info", "toggle_timer"));
+            options = new ArrayList<>(List.of("menu", "solo", "info", "toggle_timer"));
             if (admin) {
                 options.addAll(List.of("stop", "time", "debug"));
             }

@@ -7,7 +7,7 @@ author: Tuni
 commands:
   dueley:
     description: Dueley game commands
-    usage: /dueley <menu|info|toggle_timer|stop|time|debug>
+    usage: /dueley <menu|solo|info|toggle_timer|stop|time|debug>
     aliases: [dy]
 permissions:
   dueley.admin:
