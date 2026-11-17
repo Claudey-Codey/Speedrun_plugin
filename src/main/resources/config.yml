@@ -1,0 +1,41 @@
+# ───────────────────────── Trogger ─────────────────────────
+# 1v1: each player gets their own copy of the same seed and has
+# a limited time to gather gear, then both fight in a shrinking arena.
+
+# How long the gear-gathering phase lasts (minutes).
+gather-minutes: 60
+
+# Countdown before the gathering phase starts (seconds).
+start-countdown-seconds: 10
+
+# Big "X minutes" warnings before the fight (minutes remaining).
+warning-minutes: [5, 4, 3, 2, 1]
+
+# Final countdown before players are pulled into the arena (seconds).
+fight-countdown-seconds: 10
+
+# Difficulty of the gathering worlds: PEACEFUL, EASY, NORMAL, HARD
+difficulty: NORMAL
+
+# Allow nether portals (each player gets their own nether too).
+enable-nether: true
+
+arena:
+  # Border size when the fight starts (blocks).
+  start-size: 100
+  # Border size it shrinks down to (blocks).
+  end-size: 5
+  # How long the border takes to shrink (minutes).
+  shrink-minutes: 15
+  # Damage per block outside the border, per second.
+  border-damage: 1.0
+
+good-seed:
+  # A "good" seed has the chosen structure at most this many blocks from spawn.
+  max-distance: 400
+  # How many seeds to try. If none has the structure close enough, the spawn
+  # point is moved towards the closest one that was found.
+  max-attempts: 6
+
+# Seconds after the fight before everyone returns to the lobby.
+return-to-lobby-seconds: 15

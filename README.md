@@ -1,0 +1,79 @@
+# Trogger
+
+A 1v1 Minecraft gear race for **Paper 1.21.4+**.
+
+Two players get **their own copy of the same seed** and **one hour** to collect gear.
+When the time runs out, both are pulled into an arena with a **100×100 border that shrinks to 5×5 over 15 minutes**.
+Last one standing wins.
+
+## How a match goes
+
+1. **Lobby.** Players spawn on a floating platform. Until **2 players** are online the whole server is
+   *tick-frozen*: no mobs move, the sun doesn't move. It's as if nobody is playing.
+2. **Seed selection.** When the second player joins, a menu opens for both players (re-open it with the
+   **Nether Star** or `/trogger menu`):
+   - **Random Seed**: any random world.
+   - **Random Good Seed**: then choose **Village**, **Shipwreck** or **Trial Chamber**. Trogger searches for a
+     seed with that structure near spawn, and each player gets a **compass that points to it**.
+   - **Custom Seed**: type any seed in chat (numbers or text, same rules as vanilla; `cancel` goes back).
+
+   The game stays frozen until a seed is picked.
+3. **World generation.** Each player gets their own overworld (and nether) with the chosen seed, plus a shared arena.
+4. **10 second countdown.** Players are in their worlds but can't move yet.
+5. **Gather phase (60 min).** The timer is shown above the hotbar. Toggle it with `/trogger toggle_timer`.
+   - Big title warnings at **5, 4, 3, 2 and 1 minute** left, then a **10 second countdown** to the fight.
+   - Nether portals take each player to **their own** nether. The End is disabled.
+   - If a player disconnects, the game **pauses** (frozen) until they come back, then resumes after 5 seconds.
+6. **Fight.** Both players are teleported into the arena (they keep their inventory). **Health and hunger are reset.**
+   The border starts at 100×100 and shrinks to 5×5 over 15 minutes. Dying, or leaving, loses the fight.
+7. After 15 seconds everyone goes back to the lobby, the game worlds are deleted, and you can play again.
+
+## Commands
+
+| Command | Who | What |
+|---|---|---|
+| `/trogger toggle_timer` | everyone | Show or hide the timer |
+| `/trogger menu` | everyone | Open the seed selection screen |
+| `/trogger info` | everyone | Show the state, seed and time left |
+| `/trogger stop` | op (`trogger.admin`) | Abort the game and return to the lobby |
+| `/trogger time <seconds>` | op (`trogger.admin`) | Set the time left in the gather phase (for testing) |
+
+`/tg` is an alias for `/trogger`.
+
+## Install
+
+1. Build it with `mvn package` (Java 21), or use a built `Trogger-1.0.0.jar`.
+2. Put the jar in your Paper server's `plugins/` folder and start the server.
+3. Keep `allow-nether=true` in `server.properties` (the default). Paper only fires the portal events Trogger
+   uses when the nether is enabled.
+
+Trogger makes its own worlds (`trogger_lobby` plus temporary `trogger_g…` game worlds). You don't need to set up anything else.
+
+## Configuration (`plugins/Trogger/config.yml`)
+
+```yaml
+gather-minutes: 60            # length of the gather phase
+start-countdown-seconds: 10
+warning-minutes: [5, 4, 3, 2, 1]
+fight-countdown-seconds: 10
+difficulty: NORMAL
+enable-nether: true
+arena:
+  start-size: 100
+  end-size: 5
+  shrink-minutes: 15
+  border-damage: 1.0
+good-seed:
+  max-distance: 400           # how close the structure must be to spawn
+  max-attempts: 6             # seeds to try; after that the spawn is moved near the closest structure found
+return-to-lobby-seconds: 15
+```
+
+Settings are read again at the start of each game.
+
+## Notes
+
+- World generation blocks the server for a few seconds per world. "Random Good Seed" can take a bit
+  longer because it tries several seeds. On a slow machine you may see Paper's
+  "server has not responded" warnings while it generates. These are harmless.
+- Ender chests are cleared when a game starts, so you can't bring gear in from a previous game.

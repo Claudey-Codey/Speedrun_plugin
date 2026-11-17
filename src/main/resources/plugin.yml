@@ -1,0 +1,15 @@
+name: Trogger
+version: '${project.version}'
+main: dev.trogger.TroggerPlugin
+api-version: '1.21'
+description: '${project.description}'
+author: Trogger
+commands:
+  trogger:
+    description: Trogger game commands
+    usage: /trogger <toggle_timer|menu|info|stop|time>
+    aliases: [tg]
+permissions:
+  trogger.admin:
+    description: Admin commands (/trogger stop, /trogger time)
+    default: op
