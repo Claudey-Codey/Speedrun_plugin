@@ -7,8 +7,11 @@ author: Trogger
 commands:
   trogger:
     description: Trogger game commands
-    usage: /trogger <toggle_timer|menu|info|stop|time>
+    usage: /trogger <menu|info|stop|time>
     aliases: [tg]
+  toggle:
+    description: Toggle game HUD options
+    usage: /toggle timer
 permissions:
   trogger.admin:
     description: Admin commands (/trogger stop, /trogger time)

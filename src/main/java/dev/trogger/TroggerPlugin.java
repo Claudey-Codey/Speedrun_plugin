@@ -22,6 +22,12 @@ public final class TroggerPlugin extends JavaPlugin {
             cmd.setExecutor(executor);
             cmd.setTabCompleter(executor);
         }
+        PluginCommand toggle = getCommand("toggle");
+        if (toggle != null) {
+            ToggleCommand toggleExecutor = new ToggleCommand(game);
+            toggle.setExecutor(toggleExecutor);
+            toggle.setTabCompleter(toggleExecutor);
+        }
         // worlds can only be created once the server has finished starting
         getServer().getScheduler().runTask(this, game::start);
     }
