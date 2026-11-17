@@ -1,12 +1,12 @@
 package dev.trogger.world;
 
-import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
-import org.bukkit.GameRule;
+import org.bukkit.GameRules;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
@@ -24,6 +24,8 @@ import java.util.stream.Stream;
 public final class WorldService {
     public static final String LOBBY_NAME = "trogger_lobby";
     public static final String GAME_PREFIX = "trogger_g";
+    /** The key {@code new WorldCreator(LOBBY_NAME)} gave the lobby, so an existing lobby world is reused. */
+    public static final NamespacedKey LOBBY_KEY = NamespacedKey.minecraft(LOBBY_NAME);
 
     private final JavaPlugin plugin;
     private World lobby;
@@ -36,10 +38,9 @@ public final class WorldService {
 
     public World lobby() {
         if (lobby == null) {
-            lobby = new WorldCreator(LOBBY_NAME)
+            lobby = WorldCreator.ofKey(LOBBY_KEY)
                     .generator(new VoidGenerator())
                     .generateStructures(false)
-                    .keepSpawnLoaded(TriState.TRUE)
                     .createWorld();
             setupStaticWorld(lobby);
             buildLobbyPlatform(lobby);
@@ -89,12 +90,11 @@ public final class WorldService {
 
     /** Lobby / arena: always day, no weather, no mobs. */
     private void setupStaticWorld(World w) {
-        w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-        w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-        w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-        w.setGameRule(GameRule.DO_FIRE_TICK, false);
-        w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-        w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+        w.setGameRule(GameRules.ADVANCE_TIME, false);
+        w.setGameRule(GameRules.ADVANCE_WEATHER, false);
+        w.setGameRule(GameRules.SPAWN_MOBS, false);
+        w.setGameRule(GameRules.FIRE_SPREAD_RADIUS_AROUND_PLAYER, 0); // no fire spread
+        w.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
         w.setTime(6000);
         w.setStorm(false);
         w.setThundering(false);
@@ -104,37 +104,36 @@ public final class WorldService {
     // ───────────────────────── game worlds ─────────────────────────
 
     public World createSurvivalWorld(String name, long seed, World.Environment env, Difficulty difficulty) {
-        World w = new WorldCreator(name)
+        World w = WorldCreator.ofKey(NamespacedKey.minecraft(name))
                 .seed(seed)
                 .environment(env)
                 .type(WorldType.NORMAL)
                 .generateStructures(true)
-                .keepSpawnLoaded(TriState.FALSE)
                 .createWorld();
         if (w == null) {
             throw new IllegalStateException("Could not create world " + name);
         }
-        w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
-        w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        w.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
         w.setDifficulty(difficulty);
-        w.setTime(0);
+        if (env != World.Environment.NETHER) {
+            w.setTime(0); // since 26.1 the nether has no world clock and setTime throws there
+        }
         w.setStorm(false);
         w.setThundering(false);
         return w;
     }
 
     public World createArena(String name) {
-        World w = new WorldCreator(name)
+        World w = WorldCreator.ofKey(NamespacedKey.minecraft(name))
                 .generator(new ArenaGenerator())
                 .generateStructures(false)
-                .keepSpawnLoaded(TriState.FALSE)
                 .createWorld();
         if (w == null) {
             throw new IllegalStateException("Could not create arena " + name);
         }
         setupStaticWorld(w);
         w.setDifficulty(Difficulty.NORMAL); // so hunger & damage work, but no mobs spawn
-        w.setPVP(true);
+        w.setGameRule(GameRules.PVP, true);
         return w;
     }
 
@@ -186,23 +185,34 @@ public final class WorldService {
         for (Player p : w.getPlayers()) {
             p.teleport(lobbySpawn());
         }
-        File folder = w.getWorldFolder();
+        Path folder = w.getWorldPath();
         if (!Bukkit.unloadWorld(w, false)) {
-            plugin.getLogger().warning("Could not unload world " + w.getName());
+            plugin.getLogger().warning("Could not unload world " + w.getKey());
             return;
         }
         // give the region IO threads a moment before removing files
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> deleteFolder(folder.toPath()), 40L);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> deleteFolder(folder), 40L);
     }
 
     /** Remove leftover game worlds from previous runs (crash / restart mid-game). */
     public void sweepLeftovers() {
-        File[] dirs = Bukkit.getWorldContainer().listFiles(f -> f.isDirectory() && f.getName().startsWith(GAME_PREFIX));
+        // Since 26.1 every world lives in <level>/dimensions/<namespace>/<key>, next to the lobby.
+        sweepDirectory(lobby().getWorldPath().getParent());
+        // Leftovers from a pre-26.1 server sit directly in the world container.
+        sweepDirectory(Bukkit.getWorldContainer().toPath());
+    }
+
+    private void sweepDirectory(Path parent) {
+        if (parent == null || !Files.isDirectory(parent)) {
+            return;
+        }
+        File[] dirs = parent.toFile().listFiles(f -> f.isDirectory() && f.getName().startsWith(GAME_PREFIX));
         if (dirs == null) {
             return;
         }
         for (File dir : dirs) {
-            World loaded = Bukkit.getWorld(dir.getName());
+            NamespacedKey key = NamespacedKey.fromString(dir.getName()); // null if not a valid key
+            World loaded = key == null ? null : Bukkit.getWorld(key);
             if (loaded != null) {
                 deleteWorld(loaded);
             } else {

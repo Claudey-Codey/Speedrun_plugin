@@ -3,6 +3,7 @@ package dev.trogger;
 import dev.trogger.menu.SeedMenu;
 import dev.trogger.world.ArenaGenerator;
 import dev.trogger.world.WorldService;
+import io.papermc.paper.util.Tick;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Difficulty;
@@ -29,6 +30,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.StructureSearchResult;
 
+import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -688,8 +690,8 @@ public final class GameManager {
         wb.setDamageBuffer(0);
         wb.setDamageAmount(borderDamage);
         wb.setWarningDistance(4);
-        wb.setWarningTime(10);
-        wb.setSize(arenaEnd, shrinkMinutes * 60L);
+        wb.setWarningTimeTicks(Tick.tick().fromDuration(Duration.ofSeconds(10)));
+        wb.changeSize(arenaEnd, Tick.tick().fromDuration(Duration.ofMinutes(shrinkMinutes)));
 
         double half = arenaStart / 2 - 10;
         int y = ArenaGenerator.FLOOR_Y + 1;
@@ -936,7 +938,7 @@ public final class GameManager {
     }
 
     public boolean isLobby(World w) {
-        return w != null && w.getName().equals(WorldService.LOBBY_NAME);
+        return w != null && w.getKey().equals(WorldService.LOBBY_KEY);
     }
 
     /** Player can't walk (start countdown, or paused while the opponent is offline). */

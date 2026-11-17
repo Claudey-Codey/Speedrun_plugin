@@ -1,6 +1,6 @@
 # Trogger
 
-A 1v1 Minecraft gear race for **Paper 1.21.4+**.
+A 1v1 Minecraft gear race for **Paper 26.2** (Java 25).
 
 Two players get **their own copy of the same seed** and **one hour** to collect gear.
 When the time runs out, both are pulled into an arena with a **100×100 border that shrinks to 5×5 over 15 minutes**.
@@ -42,12 +42,15 @@ Last one standing wins.
 
 ## Install
 
-1. Build it with `mvn package` (Java 21), or use a built `Trogger-1.0.0.jar`.
-2. Put the jar in your Paper server's `plugins/` folder and start the server.
+1. Build it with `mvn package` using **JDK 25** (Paper 26.x needs Java 25, e.g.
+   `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn package`). The jar ends up in `target/Trogger-1.0.0.jar`.
+   Or use a built `Trogger-1.0.0.jar`.
+2. Put the jar in the `plugins/` folder of a **Paper 26.2** server (running on Java 25) and start the server.
 3. Keep `allow-nether=true` in `server.properties` (the default). Paper only fires the portal events Trogger
    uses when the nether is enabled.
 
-Trogger makes its own worlds (`trogger_lobby` plus temporary `trogger_g…` game worlds). You don't need to set up anything else.
+Trogger makes its own worlds (`trogger_lobby` plus temporary `trogger_g…` game worlds). Since Paper 26.1 they are stored
+under `world/dimensions/minecraft/`. You don't need to set up anything else.
 
 ## Configuration (`plugins/Trogger/config.yml`)
 
