@@ -1,5 +1,7 @@
 # Dueley
 
+> **Just want the jars?** Ready-to-use builds are in [`downloads/`](downloads/): `Dueley-1.0.0.jar` (Paper plugin) and `Dueley-fabric-1.0.0+26.2.jar` (Fabric mod).
+
 A 1v1 Minecraft gear race for **Paper 26.2** (Java 25).
 
 Two players get **their own copy of the same seed** and **one hour** to collect gear.
