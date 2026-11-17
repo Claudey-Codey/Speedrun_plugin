@@ -20,7 +20,7 @@ Last one standing wins.
    The game stays frozen until a seed is picked.
 3. **World generation.** Each player gets their own overworld (and nether) with the chosen seed, plus a shared arena.
 4. **10 second countdown.** Players are in their worlds but can't move yet.
-5. **Gather phase (60 min).** The timer is shown above the hotbar. Toggle it with `/toggle timer`.
+5. **Gather phase (60 min).** The timer is shown above the hotbar. Toggle it with `/dueley toggle_timer`.
    - Big title warnings at **5, 4, 3, 2 and 1 minute** left, then a **10 second countdown** to the fight.
    - Nether portals take each player to **their own** nether. The End is disabled.
    - If a player disconnects, the game **pauses** (frozen) until they come back, then resumes after 5 seconds.
@@ -32,11 +32,12 @@ Last one standing wins.
 
 | Command | Who | What |
 |---|---|---|
-| `/toggle timer` | everyone | Show or hide the timer |
+| `/dueley toggle_timer` | everyone | Show or hide the timer |
 | `/dueley menu` | everyone | Open the seed selection screen |
 | `/dueley info` | everyone | Show the state, seed and time left |
 | `/dueley stop` | op (`dueley.admin`) | Abort the game and return to the lobby |
 | `/dueley time <seconds>` | op (`dueley.admin`) | Set the time left in the gather phase (for testing) |
+| `/dueley debug timer_forward <number> <seconds\|minutes>` | op (`dueley.admin`) | Fast-forward the gather timer or the arena border (for testing) |
 
 `/dy` is an alias for `/dueley`.
 

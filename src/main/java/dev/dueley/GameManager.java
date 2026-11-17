@@ -659,7 +659,7 @@ public final class GameManager {
             Msg.title(p, "<green><b>GO!", "<gray>You have <white>" + gatherMinutes + " minutes</white> to get gear", 0, 40, 10);
             Msg.sound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.6f, 1.2f);
         }
-        Msg.broadcast("<green><b>GO!</b> <gray>Use <white>/toggle timer</white> to hide or show the timer.");
+        Msg.broadcast("<green><b>GO!</b> <gray>Use <white>/dueley toggle_timer</white> to hide or show the timer.");
     }
 
     private void pause() {
@@ -801,6 +801,51 @@ public final class GameManager {
         }
         remaining = Math.max(1, seconds) + 1; // the next tick shows exactly `seconds`
         return true;
+    }
+
+    /** Result of {@link #forwardTimer}: {@code message} is MiniMessage text for the sender (without prefix). */
+    public record ForwardResult(boolean ok, String message) {
+    }
+
+    /**
+     * Admin/testing: fast-forward the gather timer, or the arena border while fighting.
+     * Gather: the next tick lands exactly on the new value (so warnings still fire); reaching 0 starts the fight on the next tick.
+     */
+    public ForwardResult forwardTimer(int seconds) {
+        String label = seconds % 60 == 0
+                ? (seconds / 60) + (seconds == 60 ? " minute" : " minutes")
+                : seconds + (seconds == 1 ? " second" : " seconds");
+        if (state == GameState.GATHER) {
+            if (paused || !allParticipantsOnline()) {
+                return new ForwardResult(false, "<red>The game is paused (a player is offline), can't forward the timer.");
+            }
+            int target = remaining - seconds;
+            if (target <= 0) {
+                remaining = 1; // the next tick decrements to 0 and starts the fight
+                return new ForwardResult(true, "<green>Timer forwarded " + label + " → the fight starts now.");
+            }
+            remaining = target + 1; // the next tick decrements first, so it shows exactly `target`
+            return new ForwardResult(true, "<green>Timer forwarded " + label + " → " + Msg.clock(target) + " left");
+        }
+        if (state == GameState.FIGHT && arena != null) {
+            int total = shrinkMinutes * 60;
+            fightSeconds += seconds;
+            int shrinkLeft = total - fightSeconds;
+            WorldBorder wb = arena.getWorldBorder();
+            int shown;
+            if (shrinkLeft > 0) {
+                double size = arenaStart + (arenaEnd - arenaStart) * ((double) fightSeconds / total);
+                wb.setSize(size);
+                wb.changeSize(arenaEnd, Tick.tick().fromDuration(Duration.ofSeconds(shrinkLeft)));
+                shown = (int) Math.ceil(size);
+                return new ForwardResult(true, "<green>Border forwarded " + label + " → " + shown + "×" + shown
+                        + ", shrinks to " + (int) arenaEnd + "×" + (int) arenaEnd + " in " + Msg.clock(shrinkLeft));
+            }
+            wb.setSize(arenaEnd);
+            shown = (int) Math.ceil(arenaEnd);
+            return new ForwardResult(true, "<green>Border forwarded " + label + " → " + shown + "×" + shown + ", final size.");
+        }
+        return new ForwardResult(false, "<red>Only works while gathering or fighting.");
     }
 
     // ═════════════════════════ events from listeners ═════════════════════════

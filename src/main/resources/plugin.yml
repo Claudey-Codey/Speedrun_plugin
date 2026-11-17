@@ -7,12 +7,9 @@ author: Tuni
 commands:
   dueley:
     description: Dueley game commands
-    usage: /dueley <menu|info|stop|time>
+    usage: /dueley <menu|info|toggle_timer|stop|time|debug>
     aliases: [dy]
-  toggle:
-    description: Toggle game HUD options
-    usage: /toggle timer
 permissions:
   dueley.admin:
-    description: Admin commands (/dueley stop, /dueley time)
+    description: Admin commands (/dueley stop, /dueley time, /dueley debug)
     default: op

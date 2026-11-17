@@ -8,5 +8,6 @@
 ## Done
 - 1v1 gear race: lobby freeze, seed menu (random / good / custom), own worlds per player, 60 min timer, warnings, arena with shrinking border
 - Port to Minecraft 26.2 (Paper 26.2, Java 25)
-- Timer toggle moved to /toggle timer
+- Timer toggle moved to /dueley toggle_timer
 - Renamed from "Trogger" (a typo of /trigger) → Hour Duel → Dueley: /dueley (alias /dy)
+- Debug command: /dueley debug timer_forward <number> <seconds|minutes> (ops)
