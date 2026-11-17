@@ -1,4 +1,4 @@
-package dev.trogger;
+package dev.hourduel;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -31,10 +31,10 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 /** Wires Bukkit events into the {@link GameManager}. */
 public final class GameListener implements Listener {
-    private final TroggerPlugin plugin;
+    private final HourDuelPlugin plugin;
     private final GameManager game;
 
-    public GameListener(TroggerPlugin plugin, GameManager game) {
+    public GameListener(HourDuelPlugin plugin, GameManager game) {
         this.plugin = plugin;
         this.game = game;
     }
@@ -154,7 +154,7 @@ public final class GameListener implements Listener {
     }
 
     private boolean blocked(Player p) {
-        if (p.getGameMode() == GameMode.CREATIVE && p.hasPermission("trogger.admin")) {
+        if (p.getGameMode() == GameMode.CREATIVE && p.hasPermission("hourduel.admin")) {
             return false;
         }
         return game.isLobby(p.getWorld()) || game.isLocked(p);
@@ -206,7 +206,7 @@ public final class GameListener implements Listener {
         if (cause != PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) {
             e.setCancelled(true);
             if (who instanceof Player p) {
-                Msg.send(p, "<red>The End is closed during Trogger — focus on your gear!");
+                Msg.send(p, "<red>The End is closed during Hour Duel — focus on your gear!");
             }
             return;
         }

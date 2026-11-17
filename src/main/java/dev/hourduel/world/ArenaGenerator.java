@@ -1,4 +1,4 @@
-package dev.trogger.world;
+package dev.hourduel.world;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

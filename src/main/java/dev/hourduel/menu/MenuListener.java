@@ -1,7 +1,7 @@
-package dev.trogger.menu;
+package dev.hourduel.menu;
 
-import dev.trogger.GameManager;
-import dev.trogger.GoodStructure;
+import dev.hourduel.GameManager;
+import dev.hourduel.GoodStructure;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

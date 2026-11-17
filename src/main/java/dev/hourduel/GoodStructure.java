@@ -1,4 +1,4 @@
-package dev.trogger;
+package dev.hourduel;
 
 import org.bukkit.Material;
 import org.bukkit.generator.structure.Structure;

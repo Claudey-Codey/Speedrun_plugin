@@ -1,8 +1,8 @@
-package dev.trogger;
+package dev.hourduel;
 
-import dev.trogger.menu.SeedMenu;
-import dev.trogger.world.ArenaGenerator;
-import dev.trogger.world.WorldService;
+import dev.hourduel.menu.SeedMenu;
+import dev.hourduel.world.ArenaGenerator;
+import dev.hourduel.world.WorldService;
 import io.papermc.paper.util.Tick;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -43,11 +43,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Runs the whole Trogger match: lobby → seed choice → world generation → countdown → gather → fight → lobby. */
+/** Runs the whole Hour Duel match: lobby → seed choice → world generation → countdown → gather → fight → lobby. */
 public final class GameManager {
     public static final int PLAYERS = 2;
 
-    private final TroggerPlugin plugin;
+    private final HourDuelPlugin plugin;
     private final WorldService worlds;
     private final NamespacedKey menuItemKey;
 
@@ -101,7 +101,7 @@ public final class GameManager {
     private int goodMaxAttempts;
     private int returnSeconds;
 
-    public GameManager(TroggerPlugin plugin, WorldService worlds) {
+    public GameManager(HourDuelPlugin plugin, WorldService worlds) {
         this.plugin = plugin;
         this.worlds = worlds;
         this.menuItemKey = new NamespacedKey(plugin, "seed_menu_item");
@@ -907,7 +907,7 @@ public final class GameManager {
 
     /**
      * Where a nether portal in {@code from} should lead, or null when the portal should do nothing.
-     * Returns {@code from} itself when Trogger doesn't manage that world.
+     * Returns {@code from} itself when Hour Duel doesn't manage that world.
      */
     public Location netherPortalTarget(Location from) {
         World w = from.getWorld();

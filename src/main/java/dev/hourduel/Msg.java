@@ -1,4 +1,4 @@
-package dev.trogger;
+package dev.hourduel;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -13,7 +13,7 @@ import java.time.Duration;
 /** Small text helpers. All strings use MiniMessage tags. */
 public final class Msg {
     private static final MiniMessage MM = MiniMessage.miniMessage();
-    public static final String PREFIX = "<gradient:#ff5555:#ffaa00><b>TROGGER</b></gradient> <dark_gray>»</dark_gray> ";
+    public static final String PREFIX = "<gradient:#ff5555:#ffaa00><b>HOUR DUEL</b></gradient> <dark_gray>»</dark_gray> ";
 
     private Msg() {
     }

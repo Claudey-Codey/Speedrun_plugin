@@ -1,4 +1,4 @@
-package dev.trogger;
+package dev.hourduel;
 
 public enum SeedMode {
     RANDOM("Random Seed"),

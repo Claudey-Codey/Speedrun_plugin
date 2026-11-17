@@ -1,11 +1,11 @@
-package dev.trogger;
+package dev.hourduel;
 
-import dev.trogger.menu.MenuListener;
-import dev.trogger.world.WorldService;
+import dev.hourduel.menu.MenuListener;
+import dev.hourduel.world.WorldService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class TroggerPlugin extends JavaPlugin {
+public final class HourDuelPlugin extends JavaPlugin {
     private GameManager game;
 
     @Override
@@ -16,9 +16,9 @@ public final class TroggerPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new GameListener(this, game), this);
         getServer().getPluginManager().registerEvents(new MenuListener(game), this);
-        PluginCommand cmd = getCommand("trogger");
+        PluginCommand cmd = getCommand("hourduel");
         if (cmd != null) {
-            TroggerCommand executor = new TroggerCommand(game);
+            HourDuelCommand executor = new HourDuelCommand(game);
             cmd.setExecutor(executor);
             cmd.setTabCompleter(executor);
         }

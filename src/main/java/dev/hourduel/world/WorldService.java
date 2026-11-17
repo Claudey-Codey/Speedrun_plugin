@@ -1,4 +1,4 @@
-package dev.trogger.world;
+package dev.hourduel.world;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
@@ -20,10 +20,12 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-/** Creates, prepares and deletes the worlds Trogger uses. */
+/** Creates, prepares and deletes the worlds Hour Duel uses. */
 public final class WorldService {
-    public static final String LOBBY_NAME = "trogger_lobby";
-    public static final String GAME_PREFIX = "trogger_g";
+    public static final String LOBBY_NAME = "hourduel_lobby";
+    public static final String GAME_PREFIX = "hourduel_g";
+    /** Game-world prefix from before the rename to Hour Duel (it was called "Trogger"); only swept, never created. */
+    private static final String LEGACY_GAME_PREFIX = "trogger_g";
     /** The key {@code new WorldCreator(LOBBY_NAME)} gave the lobby, so an existing lobby world is reused. */
     public static final NamespacedKey LOBBY_KEY = NamespacedKey.minecraft(LOBBY_NAME);
 
@@ -206,7 +208,8 @@ public final class WorldService {
         if (parent == null || !Files.isDirectory(parent)) {
             return;
         }
-        File[] dirs = parent.toFile().listFiles(f -> f.isDirectory() && f.getName().startsWith(GAME_PREFIX));
+        File[] dirs = parent.toFile().listFiles(f -> f.isDirectory()
+                && (f.getName().startsWith(GAME_PREFIX) || f.getName().startsWith(LEGACY_GAME_PREFIX)));
         if (dirs == null) {
             return;
         }

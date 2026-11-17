@@ -1,4 +1,4 @@
-package dev.trogger;
+package dev.hourduel;
 
 public enum GameState {
     /** Waiting for 2 players and for someone to pick a seed. The whole server is tick-frozen. */

@@ -1,4 +1,4 @@
-package dev.trogger;
+package dev.hourduel;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -9,11 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/** /trogger menu | info | stop | time <seconds> */
-public final class TroggerCommand implements TabExecutor {
+/** /hourduel menu | info | stop | time <seconds> */
+public final class HourDuelCommand implements TabExecutor {
     private final GameManager game;
 
-    public TroggerCommand(GameManager game) {
+    public HourDuelCommand(GameManager game) {
         this.game = game;
     }
 
@@ -37,7 +37,7 @@ public final class TroggerCommand implements TabExecutor {
                     return true;
                 }
                 if (args.length < 2) {
-                    sender.sendMessage(Msg.mm(Msg.PREFIX + "<red>Usage: /trogger time <seconds>"));
+                    sender.sendMessage(Msg.mm(Msg.PREFIX + "<red>Usage: /hourduel time <seconds>"));
                     return true;
                 }
                 try {
@@ -51,11 +51,11 @@ public final class TroggerCommand implements TabExecutor {
             }
             default -> {
                 sender.sendMessage(Msg.mm(Msg.PREFIX + "<gold>Commands:"));
-                sender.sendMessage(Msg.mm("<yellow>/trogger menu <gray>- open the seed selection screen"));
-                sender.sendMessage(Msg.mm("<yellow>/trogger info <gray>- show game info"));
-                if (sender.hasPermission("trogger.admin")) {
-                    sender.sendMessage(Msg.mm("<red>/trogger stop <gray>- abort the game"));
-                    sender.sendMessage(Msg.mm("<red>/trogger time <seconds> <gray>- set the time left"));
+                sender.sendMessage(Msg.mm("<yellow>/hourduel menu <gray>- open the seed selection screen"));
+                sender.sendMessage(Msg.mm("<yellow>/hourduel info <gray>- show game info"));
+                if (sender.hasPermission("hourduel.admin")) {
+                    sender.sendMessage(Msg.mm("<red>/hourduel stop <gray>- abort the game"));
+                    sender.sendMessage(Msg.mm("<red>/hourduel time <seconds> <gray>- set the time left"));
                 }
             }
         }
@@ -63,7 +63,7 @@ public final class TroggerCommand implements TabExecutor {
     }
 
     private boolean admin(CommandSender sender) {
-        if (sender.hasPermission("trogger.admin")) {
+        if (sender.hasPermission("hourduel.admin")) {
             return true;
         }
         sender.sendMessage(Msg.mm(Msg.PREFIX + "<red>No permission."));
@@ -76,7 +76,7 @@ public final class TroggerCommand implements TabExecutor {
             return List.of();
         }
         List<String> options = new ArrayList<>(List.of("menu", "info"));
-        if (sender.hasPermission("trogger.admin")) {
+        if (sender.hasPermission("hourduel.admin")) {
             options.addAll(List.of("stop", "time"));
         }
         return options.stream().filter(o -> o.startsWith(args[0].toLowerCase())).toList();

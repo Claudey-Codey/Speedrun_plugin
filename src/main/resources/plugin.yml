@@ -1,18 +1,18 @@
-name: Trogger
+name: HourDuel
 version: '${project.version}'
-main: dev.trogger.TroggerPlugin
+main: dev.hourduel.HourDuelPlugin
 api-version: '26.2'
 description: '${project.description}'
-author: Trogger
+author: Hour Duel
 commands:
-  trogger:
-    description: Trogger game commands
-    usage: /trogger <menu|info|stop|time>
-    aliases: [tg]
+  hourduel:
+    description: Hour Duel game commands
+    usage: /hourduel <menu|info|stop|time>
+    aliases: [hd]
   toggle:
     description: Toggle game HUD options
     usage: /toggle timer
 permissions:
-  trogger.admin:
-    description: Admin commands (/trogger stop, /trogger time)
+  hourduel.admin:
+    description: Admin commands (/hourduel stop, /hourduel time)
     default: op
