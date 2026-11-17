@@ -1,4 +1,4 @@
-package dev.hourduel.world;
+package dev.dueley.world;
 
 import org.bukkit.Location;
 import org.bukkit.World;

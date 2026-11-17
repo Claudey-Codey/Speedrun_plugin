@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.hourduel</groupId>
-    <artifactId>HourDuel</artifactId>
+    <groupId>dev.dueley</groupId>
+    <artifactId>Dueley</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>HourDuel</name>
+    <name>Dueley</name>
     <description>1v1 Minecraft gear race: one hour to gather gear in your own world, then fight in a shrinking arena.</description>
 
     <properties>
@@ -33,7 +33,7 @@
     </dependencies>
 
     <build>
-        <finalName>HourDuel-${project.version}</finalName>
+        <finalName>Dueley-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

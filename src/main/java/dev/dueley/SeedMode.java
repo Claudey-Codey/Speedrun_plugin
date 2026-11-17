@@ -1,4 +1,4 @@
-package dev.hourduel;
+package dev.dueley;
 
 public enum SeedMode {
     RANDOM("Random Seed"),

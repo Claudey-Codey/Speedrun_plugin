@@ -1,4 +1,4 @@
-package dev.hourduel.world;
+package dev.dueley.world;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
@@ -18,14 +18,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 
-/** Creates, prepares and deletes the worlds Hour Duel uses. */
+/** Creates, prepares and deletes the worlds Dueley uses. */
 public final class WorldService {
-    public static final String LOBBY_NAME = "hourduel_lobby";
-    public static final String GAME_PREFIX = "hourduel_g";
-    /** Game-world prefix from before the rename to Hour Duel (it was called "Trogger"); only swept, never created. */
-    private static final String LEGACY_GAME_PREFIX = "trogger_g";
+    public static final String LOBBY_NAME = "dueley_lobby";
+    public static final String GAME_PREFIX = "dueley_g";
+    /** Game-world prefixes from earlier names of the plugin (Trogger, Hour Duel); only swept, never created. */
+    private static final List<String> LEGACY_GAME_PREFIXES = List.of("trogger_g", "hourduel_g");
     /** The key {@code new WorldCreator(LOBBY_NAME)} gave the lobby, so an existing lobby world is reused. */
     public static final NamespacedKey LOBBY_KEY = NamespacedKey.minecraft(LOBBY_NAME);
 
@@ -208,8 +209,7 @@ public final class WorldService {
         if (parent == null || !Files.isDirectory(parent)) {
             return;
         }
-        File[] dirs = parent.toFile().listFiles(f -> f.isDirectory()
-                && (f.getName().startsWith(GAME_PREFIX) || f.getName().startsWith(LEGACY_GAME_PREFIX)));
+        File[] dirs = parent.toFile().listFiles(f -> f.isDirectory() && isGameWorldName(f.getName()));
         if (dirs == null) {
             return;
         }
@@ -222,6 +222,10 @@ public final class WorldService {
                 deleteFolder(dir.toPath());
             }
         }
+    }
+
+    private static boolean isGameWorldName(String name) {
+        return name.startsWith(GAME_PREFIX) || LEGACY_GAME_PREFIXES.stream().anyMatch(name::startsWith);
     }
 
     private void deleteFolder(Path root) {

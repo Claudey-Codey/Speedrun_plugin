@@ -1,7 +1,7 @@
-package dev.hourduel.menu;
+package dev.dueley.menu;
 
-import dev.hourduel.GoodStructure;
-import dev.hourduel.Msg;
+import dev.dueley.GoodStructure;
+import dev.dueley.Msg;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -46,7 +46,7 @@ public final class SeedMenu implements InventoryHolder {
     }
 
     public static SeedMenu main(String playersLine, int gatherMinutes) {
-        SeedMenu menu = new SeedMenu(Page.MAIN, Msg.mm("<dark_gray>Hour Duel » </dark_gray><black>Choose a Seed"));
+        SeedMenu menu = new SeedMenu(Page.MAIN, Msg.mm("<dark_gray>Dueley » </dark_gray><black>Choose a Seed"));
         Inventory inv = menu.inventory;
         fill(inv, Material.BLACK_STAINED_GLASS_PANE);
         inv.setItem(SLOT_RANDOM, item(Material.WHEAT_SEEDS, "<yellow><b>Random Seed",
@@ -77,7 +77,7 @@ public final class SeedMenu implements InventoryHolder {
     }
 
     public static SeedMenu good() {
-        SeedMenu menu = new SeedMenu(Page.GOOD, Msg.mm("<dark_gray>Hour Duel » </dark_gray><black>Pick a Structure"));
+        SeedMenu menu = new SeedMenu(Page.GOOD, Msg.mm("<dark_gray>Dueley » </dark_gray><black>Pick a Structure"));
         Inventory inv = menu.inventory;
         fill(inv, Material.CYAN_STAINED_GLASS_PANE);
         inv.setItem(SLOT_VILLAGE, structureItem(GoodStructure.VILLAGE, "<green>",

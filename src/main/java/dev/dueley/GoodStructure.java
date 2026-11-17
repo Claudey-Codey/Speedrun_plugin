@@ -1,4 +1,4 @@
-package dev.hourduel;
+package dev.dueley;
 
 import org.bukkit.Material;
 import org.bukkit.generator.structure.Structure;

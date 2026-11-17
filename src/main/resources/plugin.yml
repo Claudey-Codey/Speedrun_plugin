@@ -1,18 +1,18 @@
-name: HourDuel
+name: Dueley
 version: '${project.version}'
-main: dev.hourduel.HourDuelPlugin
+main: dev.dueley.DueleyPlugin
 api-version: '26.2'
 description: '${project.description}'
-author: Hour Duel
+author: Tuni
 commands:
-  hourduel:
-    description: Hour Duel game commands
-    usage: /hourduel <menu|info|stop|time>
-    aliases: [hd]
+  dueley:
+    description: Dueley game commands
+    usage: /dueley <menu|info|stop|time>
+    aliases: [dy]
   toggle:
     description: Toggle game HUD options
     usage: /toggle timer
 permissions:
-  hourduel.admin:
-    description: Admin commands (/hourduel stop, /hourduel time)
+  dueley.admin:
+    description: Admin commands (/dueley stop, /dueley time)
     default: op

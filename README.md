@@ -1,4 +1,4 @@
-# Hour Duel
+# Dueley
 
 A 1v1 Minecraft gear race for **Paper 26.2** (Java 25).
 
@@ -11,9 +11,9 @@ Last one standing wins.
 1. **Lobby.** Players spawn on a floating platform. Until **2 players** are online the whole server is
    *tick-frozen*: no mobs move, the sun doesn't move. It's as if nobody is playing.
 2. **Seed selection.** When the second player joins, a menu opens for both players (re-open it with the
-   **Nether Star** or `/hourduel menu`):
+   **Nether Star** or `/dueley menu`):
    - **Random Seed**: any random world.
-   - **Random Good Seed**: then choose **Village**, **Shipwreck** or **Trial Chamber**. Hour Duel searches for a
+   - **Random Good Seed**: then choose **Village**, **Shipwreck** or **Trial Chamber**. Dueley searches for a
      seed with that structure near spawn, and each player gets a **compass that points to it**.
    - **Custom Seed**: type any seed in chat (numbers or text, same rules as vanilla; `cancel` goes back).
 
@@ -33,26 +33,26 @@ Last one standing wins.
 | Command | Who | What |
 |---|---|---|
 | `/toggle timer` | everyone | Show or hide the timer |
-| `/hourduel menu` | everyone | Open the seed selection screen |
-| `/hourduel info` | everyone | Show the state, seed and time left |
-| `/hourduel stop` | op (`hourduel.admin`) | Abort the game and return to the lobby |
-| `/hourduel time <seconds>` | op (`hourduel.admin`) | Set the time left in the gather phase (for testing) |
+| `/dueley menu` | everyone | Open the seed selection screen |
+| `/dueley info` | everyone | Show the state, seed and time left |
+| `/dueley stop` | op (`dueley.admin`) | Abort the game and return to the lobby |
+| `/dueley time <seconds>` | op (`dueley.admin`) | Set the time left in the gather phase (for testing) |
 
-`/hd` is an alias for `/hourduel`.
+`/dy` is an alias for `/dueley`.
 
 ## Install
 
 1. Build it with `mvn package` using **JDK 25** (Paper 26.x needs Java 25, e.g.
-   `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn package`). The jar ends up in `target/HourDuel-1.0.0.jar`.
-   Or use a built `HourDuel-1.0.0.jar`.
+   `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn package`). The jar ends up in `target/Dueley-1.0.0.jar`.
+   Or use a built `Dueley-1.0.0.jar`.
 2. Put the jar in the `plugins/` folder of a **Paper 26.2** server (running on Java 25) and start the server.
-3. Keep `allow-nether=true` in `server.properties` (the default). Paper only fires the portal events Hour Duel
+3. Keep `allow-nether=true` in `server.properties` (the default). Paper only fires the portal events Dueley
    uses when the nether is enabled.
 
-Hour Duel makes its own worlds (`hourduel_lobby` plus temporary `hourduel_g…` game worlds). Since Paper 26.1 they are stored
+Dueley makes its own worlds (`dueley_lobby` plus temporary `dueley_g…` game worlds). Since Paper 26.1 they are stored
 under `world/dimensions/minecraft/`. You don't need to set up anything else.
 
-## Configuration (`plugins/HourDuel/config.yml`)
+## Configuration (`plugins/Dueley/config.yml`)
 
 ```yaml
 gather-minutes: 60            # length of the gather phase

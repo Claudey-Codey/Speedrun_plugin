@@ -1,7 +1,7 @@
-package dev.hourduel.menu;
+package dev.dueley.menu;
 
-import dev.hourduel.GameManager;
-import dev.hourduel.GoodStructure;
+import dev.dueley.GameManager;
+import dev.dueley.GoodStructure;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
