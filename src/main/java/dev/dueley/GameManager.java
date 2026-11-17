@@ -659,7 +659,7 @@ public final class GameManager {
             Msg.title(p, "<green><b>GO!", "<gray>You have <white>" + gatherMinutes + " minutes</white> to get gear", 0, 40, 10);
             Msg.sound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.6f, 1.2f);
         }
-        Msg.broadcast("<green><b>GO!</b> <gray>Use <white>/dueley toggle_timer</white> to hide or show the timer.");
+        Msg.broadcast("<green><b>GO!</b> <gray>Gather your gear, the fight starts in <white>" + gatherMinutes + " minutes</white>.");
     }
 
     private void pause() {
