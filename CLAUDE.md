@@ -4,6 +4,8 @@ Dueley is Tuni's 1v1 Minecraft gear-race plugin: two players get their own copy 
 
 Stack decision: Paper plugin for Minecraft **26.2** (Java 25, Maven, `paper-api` 26.2). Gameplay and commands: `README.md`. Code lives in `src/main/java/dev/dueley/` (`GameManager` runs the match; `world/` makes the lobby, game worlds and arena; `menu/` is the seed selection screen).
 
+There is also a **Fabric mod** version in `fabric/` (Gradle + Loom, Fabric API, Fantasy, sgui; server-side only so joining players need no mods). The Paper plugin is the source of truth: any gameplay change must be made in both and keep them behaving the same (known differences are listed in `fabric/README.md`).
+
 Idea board: `docs/IDEAS.md`. Whenever Tuni mentions an idea or asks to save one, add it there (one line), keep the Next up / Ideas / Done sections current, and commit it.
 
 ## Working model: architect + subagents
@@ -20,4 +22,4 @@ Subagent model selection:
 
 ## Testing
 
-Build with `mvn package` (needs Java 25). Test on a real Paper 26.2 server: drop `target/Dueley-*.jar` into `plugins/`, use offline mode + RCON, and drive two players with bots. Admin shortcuts: `/dueley time <seconds>` skips the gather phase, `/dueley stop` aborts a game. When teleporting players from the console, use `execute in <world>` or `execute as <player> at @s`; a bare console `/tp` sends them to the default world.
+Build with `mvn package` (needs Java 25). Fabric mod: `cd fabric && ./gradlew build` with `JAVA_HOME` pointing to Java 25. Test on a real Paper 26.2 server: drop `target/Dueley-*.jar` into `plugins/`, use offline mode + RCON, and drive two players with bots. Admin shortcuts: `/dueley time <seconds>` skips the gather phase, `/dueley stop` aborts a game. When teleporting players from the console, use `execute in <world>` or `execute as <player> at @s`; a bare console `/tp` sends them to the default world.

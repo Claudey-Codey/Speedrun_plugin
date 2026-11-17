@@ -69,6 +69,12 @@ Solo practice always turns off when the game returns to the lobby.
 Dueley makes its own worlds (`dueley_lobby` plus temporary `dueley_g…` game worlds). Since Paper 26.1 they are stored
 under `world/dimensions/minecraft/`. You don't need to set up anything else.
 
+## Fabric mod
+
+Want to play without a server? `fabric/` has a **Fabric mod version** of Dueley for 26.2. It plays the same, runs only on
+the host (singleplayer, Open to LAN, Essential world hosting or a Fabric server), and players who join need no mods.
+See [`fabric/README.md`](fabric/README.md).
+
 ## Configuration (`plugins/Dueley/config.yml`)
 
 ```yaml

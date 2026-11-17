@@ -1,0 +1,25 @@
+{
+	"required": true,
+	"package": "dev.dueley.fabric.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"AbstractContainerMenuMixin",
+		"BaseFireBlockMixin",
+		"EndPortalBlockMixin",
+		"FoodDataAccessor",
+		"FoodDataMixin",
+		"ItemEntityMixin",
+		"LevelMixin",
+		"NetherPortalBlockMixin",
+		"PlayerListMixin",
+		"ServerGamePacketListenerImplMixin",
+		"ServerLevelMixin",
+		"ServerPlayerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
